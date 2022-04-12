@@ -12,8 +12,17 @@ from django.contrib.auth import authenticate, login, logout
 def signup_view(request):
     """
     회원가입
-    :param request: [username, email, password, password_check, is_superuser]
-    :return: 201 or 400
+    :param request:
+        [
+            username : 사용자명 - 아이디,
+            email : 이메일,
+            password : 비밀번호,
+            password_check : 비밀번호 확인,
+            is_staff : 0 or 1
+        ]
+
+    :return: 201 : 회원 가입 성공
+             400 : (실패)요청 데이터가 유효하지 않을 경우
     """
     serializer = RegistrationSerializer(data=request.data)
 
@@ -30,8 +39,13 @@ def signup_view(request):
 def login_view(request):
     """
     로그인
-    :param request: [username, password]
-    :return: 200 or 401
+    :param request:
+        [
+            username : 사용자명 - 아이디,
+            password : 비밀번호
+        ]
+    :return: 200 : 로그인 성공
+             401 : 로그인 실패
     """
     username = request.data['username']
     password = request.data['password']
@@ -62,8 +76,8 @@ def login_view(request):
 def logout_view(request):
     """
     로그아웃
-    :param request: [username, password] + [token]
-    :return: 200
+    :param request:  token (Headers) : 로그인시 발행한 유효한 토근 값
+    :return: 200 : 로그아웃 성공
     """
     request.user.auth_token.delete()
     # Logout will remove all session data
