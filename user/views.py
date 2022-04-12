@@ -10,6 +10,11 @@ from django.contrib.auth import authenticate, login, logout
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup_view(request):
+    """
+    회원가입
+    :param request: [username, email, password, password_check, is_superuser]
+    :return: 201 or 400
+    """
     serializer = RegistrationSerializer(data=request.data)
 
     if serializer.is_valid(raise_exception=True):
@@ -23,6 +28,11 @@ def signup_view(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
+    """
+    로그인
+    :param request: [username, password]
+    :return: 200 or 401
+    """
     username = request.data['username']
     password = request.data['password']
     user = authenticate(
@@ -50,6 +60,11 @@ def login_view(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
+    """
+    로그아웃
+    :param request: [username, password] + [token]
+    :return: 200
+    """
     request.user.auth_token.delete()
     # Logout will remove all session data
     logout(request)
