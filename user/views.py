@@ -47,6 +47,16 @@ def login_view(request):
     :return: 200 : 로그인 성공
              401 : 로그인 실패
     """
+    if 'username' not in request.data:
+        return JsonResponse({
+            "msg": "The username is required."
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    if 'password' not in request.data:
+        return JsonResponse({
+            "msg": "The password is required."
+        }, status=status.HTTP_400_BAD_REQUEST)
+
     username = request.data['username']
     password = request.data['password']
     user = authenticate(
@@ -68,7 +78,7 @@ def login_view(request):
     else:
         return JsonResponse({
             "msg": "The username and/or password is incorrect."
-        }, status=status.HTTP_401_UNAUTHORIZED)
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
