@@ -16,5 +16,5 @@ product_detail = ProductViewSet.as_view({
 
 urlpatterns = [
     path('', product_list, name='product_list'),
-    path('<int:pk>/', product_detail, name='product_detail'),
+    path('<int:pk>', product_detail, name='product_detail'),
 ]
