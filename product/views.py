@@ -9,7 +9,7 @@ from .ProductSerializer import \
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.get_total_funding()
     create_serializer_class = ProductCreateSerializer
     list_serializer_class = ProductListSerializer
     retrieve_serializer_class = ProductRetrieveSerializer
@@ -41,7 +41,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             # action is not set return default permission_classes
             return [permission() for permission in self.permission_classes_by_action["default"]]
 
-    def list(self, request):
+    def list(self, request, *args, **kwargs):
         """
         상품 조회
         :param request:
@@ -60,7 +60,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = self.list_serializer_class(queryset, many=True)
         return JsonResponse({"data": serializer.data, "msg": "successful."}, status=status.HTTP_200_OK)
 
-    def create(self, request):
+    def create(self, request, *args, **kwargs):
         """
         상품 등록
         :param request:
@@ -85,11 +85,10 @@ class ProductViewSet(viewsets.ModelViewSet):
             return JsonResponse({"data": serializer.data, "msg": "create product successful."},
                                 status=status.HTTP_201_CREATED)
 
-    def retrieve(self, request, pk=None):
+    def retrieve(self, request, *args, **kwargs):
         """
         특정 상품 조회
         :param request:
-        :param pk: 상품 레코드 아이디
         :return: 200
         """
         self.get_permissions()
@@ -100,7 +99,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         else:
             return JsonResponse({"msg": "There isn't searched product."}, status=status.HTTP_404_NOT_FOUND)
 
-    def update(self, request, pk=None):
+    def update(self, request, *args, **kwargs):
         """
         상품 수정
         :param request:
@@ -110,10 +109,10 @@ class ProductViewSet(viewsets.ModelViewSet):
                 one_time_funding : 1회 펀딩금액 ,
                 end_date : 펀딩 종료일
             ]
-        :param pk: 수정 할 상품 레코드 아이디
         :return:
                 200 : 상품 수정 완료
                 403 : 수정 권한이 없을 경우 = 본인이 등록한 상품이 아닐 경우 수정 불가
+                409 : 충돌 = 목표금액을 수정 할 경우
         """
         self.get_permissions()
         instance = self.get_object()
@@ -122,7 +121,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         if instance.u == request.user:
             # 목표금액을 수정하는지 확인
             if instance.target_amount != request.data['target_amount']:
-                return JsonResponse({"msg": "target_amount field can't be modified."}, status=status.HTTP_403_FORBIDDEN)
+                return JsonResponse({"msg": "target_amount field can't be modified."}, status=status.HTTP_409_CONFLICT)
             else:
                 serializer = self.update_serializer_class(instance, data=request.data, partial=True)
                 if serializer.is_valid(raise_exception=True):
@@ -132,11 +131,10 @@ class ProductViewSet(viewsets.ModelViewSet):
         else:
             return JsonResponse({"msg": "You do not have permission to modify this product."}, status=status.HTTP_403_FORBIDDEN)
 
-    def destroy(self, request, pk=None):
+    def destroy(self, request, *args, **kwargs):
         """
         상품 삭제
         :param request:
-        :param pk: 상품 레코드 아이디
         :return:
                 204 : 정상적으로 삭제 성공
                 403 : 삭제 권한이 없을 경우 = 본인이 등록한 상품이 아닐 경우 삭제 불가
@@ -154,7 +152,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     # 상품 등록/수정 시 필요한 필드 추가
     def _recombination(self, qs):
         qs.participants_num = qs.funding_set.all().count()
-        qs.total_funding = qs.participants_num * qs.one_time_funding
         qs.d_day = (qs.end_date.date() - self.today).days
         qs.achievement_rate = "{}%".format(int((qs.total_funding / qs.target_amount) * 100))
         qs.username = qs.u.username

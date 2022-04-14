@@ -5,4 +5,4 @@ from .models import Funding
 class FundingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Funding
-        fields = "__all__"
+        fields = ['u', 'p', 'price']

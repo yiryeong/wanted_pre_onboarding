@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 
-class UserRegistrationAPIViewTestCase(APITestCase):
+class UserRegistrationTest(APITestCase):
     url = reverse('user:signup')
 
     def test_invalid_password(self):
@@ -74,7 +74,7 @@ class UserRegistrationAPIViewTestCase(APITestCase):
         self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
 
 
-class UserLoginAPIViewTestCase(APITestCase):
+class UserLoginTest(APITestCase):
     url = reverse('user:login')
 
     def setUp(self):
@@ -85,7 +85,7 @@ class UserLoginAPIViewTestCase(APITestCase):
             'email': 'user_login_test@gmail.com',
             'is_staff': 1
         }
-        self.user = self.client.post(UserRegistrationAPIViewTestCase.url, self.user_data)
+        self.user = self.client.post(UserRegistrationTest.url, self.user_data)
         self.assertEqual(status.HTTP_201_CREATED, self.user.status_code)
 
     def test_authentication_without_username(self):
@@ -126,7 +126,7 @@ class UserLoginAPIViewTestCase(APITestCase):
         self.assertEqual(self.user_data['username'], response_json['user']['username'])
 
 
-class UserLogoutAPIViewTestCase(APITestCase):
+class UserLogoutTest(APITestCase):
     url = reverse('user:logout')
 
     def setUp(self):
@@ -137,8 +137,8 @@ class UserLogoutAPIViewTestCase(APITestCase):
             'email': 'user_login_test@gmail.com',
             'is_staff': 1
         }
-        self.user = self.client.post(UserRegistrationAPIViewTestCase.url, self.user_data)
-        response = self.client.post(UserLoginAPIViewTestCase.url, self.user_data)
+        self.user = self.client.post(UserRegistrationTest.url, self.user_data)
+        response = self.client.post(UserLoginTest.url, self.user_data)
         response_json = json.loads(response.content.decode('utf-8'))
         self.token = response_json['token']
 
