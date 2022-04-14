@@ -1,13 +1,12 @@
-from django.urls import path
+from django.urls import path, include
 from .views import ProductViewSet
 
-# Blog 목록 보여주기
+
 product_list = ProductViewSet.as_view({
     'get': 'list',
     'post': 'create'
 })
 
-# Blog detail 보여주기 + 수정 + 삭제
 product_detail = ProductViewSet.as_view({
     'get': 'retrieve',
     'put': 'update',
